@@ -41,13 +41,9 @@ def order_per_month(df):
     return monthly_orders_df
 
 def rating(df):
-    rating_service = df['review_score'].value_counts().sort_values(ascending=False)
-    
-    max_score = rating_service.idxmax()
+    review_scores = df['review_score'].value_counts().sort_values(ascending=False)
 
-    df_cust=df['review_score']
-
-    return (rating_service,max_score,df_cust)
+    return review_scores
 
 
 all_df = pd.read_csv("https://raw.githubusercontent.com/Fanbop/ProyekAnalisisData/main/data/all_data.csv")
@@ -59,7 +55,7 @@ max_date = all_df["order_approved_at"].max()
 
 with st.sidebar:
     # Menambahkan logo perusahaan
-    st.image("https://firebasestorage.googleapis.com/v0/b/bangkit-dashboard/o/production%2F2024-B1%2Fprofiles%2F276daebc-c17a-4d5e-8555-b76387073971.jpeg?alt=media&token=d786f3fb-6e8d-4baa-b164-3bcde0f2278d")
+    st.image("https://firebasestorage.googleapis.com/v0/b/bangkit-dashboard/o/production%2F2024-B1%2Fprofiles%2F276daebc-c17a-4d5e-8555-b76387073971.jpeg?alt=media&token=d786f3fb-6e8d-4baa-b164-3bcde0f2278d", width=100)
     st.markdown("### Zulfan Zidni Ilhama")
     st.markdown("<hr style='margin: 15px 0; border-color: #4A3AFF;'>", unsafe_allow_html=True)
 
@@ -91,7 +87,7 @@ main_df = all_df[(all_df["order_approved_at"] >= str(start_date)) & (all_df["ord
 # Memanggil fungsi
 most_least_product_df = product_sold(main_df)
 tren_orders_df = order_per_month(all_df)
-rating_service,max_score,df_rating_service=rating(main_df)
+review_scores=rating(main_df)
 
 # Header
 st.markdown(
@@ -139,16 +135,16 @@ st.markdown("<hr style='margin: 15px 0; border-color: #4A3AFF;'>", unsafe_allow_
 # === PRODUK PALING LARIS DAN KURANG DIMINATI ===
 st.subheader("Best and Worst Performing Product")
 
-fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(35, 15))  
+fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(24, 6))  
 
 colors = ["#3366CC", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 
 sns.barplot(x="product_id", y="product_category_name_english", data=most_least_product_df.head(5), palette=colors, ax=ax[0])
 ax[0].set_ylabel(None)
 ax[0].set_xlabel(None)
-ax[0].set_title("Best Performing Product", loc="center", fontsize=30)
-ax[0].tick_params(axis ='y', labelsize=25)
-ax[0].tick_params(axis ='x', labelsize=20)
+ax[0].set_title("Best Performing Product", loc="center", fontsize=20)
+ax[0].tick_params(axis ='y', labelsize=15)
+ax[0].tick_params(axis ='x', labelsize=15)
 
 sns.barplot(x="product_id", y="product_category_name_english", data=most_least_product_df.sort_values(by="product_id", ascending=True).head(5), palette=colors, ax=ax[1])
 ax[1].set_ylabel(None)
@@ -156,9 +152,9 @@ ax[1].set_xlabel(None)
 ax[1].invert_xaxis()
 ax[1].yaxis.set_label_position("right")
 ax[1].yaxis.tick_right()
-ax[1].set_title("Worst Performing Product", loc="center", fontsize=30)
-ax[1].tick_params(axis='y', labelsize=25)
-ax[1].tick_params(axis='x', labelsize=20)
+ax[1].set_title("Worst Performing Product", loc="center", fontsize=20)
+ax[1].tick_params(axis='y', labelsize=15)
+ax[1].tick_params(axis='x', labelsize=15)
 
 st.pyplot(fig)
 
@@ -167,25 +163,23 @@ st.markdown("<hr style='margin: 15px 0; border-color: #4A3AFF;'>", unsafe_allow_
 # === TINGKAT KEPUASAN PELANGGAN ====
 st.subheader('Tingkat Kepuasan Pelanggan')
 
-def show_barplot(review_scores, most_common_score):
-    plt.figure(figsize=(10, 5))
-    sns.barplot(x=review_scores.index,
-                y=review_scores.values,
-                order=review_scores.index,
-                palette=["#3366CC" if score == most_common_score else "#D3D3D3" for score in review_scores.index],
-                linewidth=1.5)
-    plt.title("Tingkat Kepuasan Customer", fontsize=20)
-    plt.xticks(fontsize=12)
-    st.pyplot(plt)
+colors = ["#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#72BCD4"]
 
-def rating_cust_df(df):
-    rating_service = df['review_score'].value_counts().sort_values(ascending=False)
-    max_score = rating_service.idxmax()
-    df_cust = df['review_score']
-    return rating_service, max_score, df_cust
+most_common_scores = review_scores.idxmax()
 
-rating_service, most_common_score, _ = rating_cust_df(df)
-
-show_barplot(rating_service, most_common_score)
+fig, ax = plt.subplots(figsize=(20, 10))
+sns.barplot(
+    x = review_scores.index,
+    y = review_scores.values,
+    order = review_scores.index,
+    palette = ["#068DA9" if score == most_common_scores else "#D3D3D3" for score in review_scores.index],
+    ax=ax
+)
+ax.set_title("Tingkat Kepuasan Pelanggan", loc="center", fontsize=30)
+ax.set_ylabel(None)
+ax.set_xlabel(None)
+ax.tick_params(axis='y', labelsize=20)
+ax.tick_params(axis='x', labelsize=25)
+st.pyplot(fig)
 
 st.caption('Copyright (C) Zulfan Zidni Ilhama. 2024')
